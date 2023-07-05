@@ -1,4 +1,4 @@
-import requests
+import requests,os
 
 def get_current_weather(location):
     RAPID_API_KEY = os.getenv('RAPID_API_KEY')

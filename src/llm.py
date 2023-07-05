@@ -1,14 +1,9 @@
-import requests
-import json
-import os
-import requests
+import os,sys
 from src.prompts import system_instruction
+import requests
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-GPT_MODEL = 'gpt-3.5-turbo-0613' #new model for function calling abilities
-
-
-
+GPT_MODEL = "gpt-3.5-turbo-0613"
 
 def chat_completion_request(messages, functions=None, function_call=None, model=GPT_MODEL):
     headers = {
@@ -37,10 +32,6 @@ def chat_completion_request(messages, functions=None, function_call=None, model=
         raise e
 
 
-messages=[] #Empty the messages list to avoid previous stored data
-messages.append({'role':'system',"content":system_instruction})
-user_message = "Hi, there."
-messages.append({'role': 'user', 'content': user_message})
 
 functions = [
     {
@@ -59,22 +50,4 @@ functions = [
     }
 ]
 
-# Calling the chatgpt api response by passing the message and function
-chat_reasponse = chat_completion_request(messages,functions)
-
-# Extracting the message
-assistant_message = chat_reasponse.json()['choices'][0]['message']
-# print(f"\nAssistant Message: \n{assistant_message}") 
-
-
-messages.append(assistant_message)
-
-user_message = "I want to know the weather at Bengaluru."
-messages.append({'role':'user','content':user_message})
-chat_reasponse = chat_completion_request(messages,functions)
-
-
-# print(f"\nComplete Chat Response: \n{chat_reasponse.json()}")
-assistant_message=chat_reasponse.json()['choices'][0]['message']
-print(f"\nAssistant Message: \n{assistant_message}")
-
+messages = [{'role':'system','content':system_instruction}]

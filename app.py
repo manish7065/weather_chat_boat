@@ -1,27 +1,27 @@
 import openai
-import os,sys
-
-from src.utils import get_current_weather
-from src.llm import messages,functions,chat_completion_request
-from src.prompts import conv_prompt
+from dotenv import load_dotenv
 import chainlit as cl
-
+from src.llm import chat_completion_request, messages, functions
+from src.prompts import conv_prompt
+from src.utils import get_current_weather
 import json
+import os
 
+load_dotenv()
 
-
-
-
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 def execute_function_call(assistant_message):
-    if assistant_message.get('function_call').get('name') == "get_current_weather":
-        location = json.loads(assistant_message.get('function_call').get('arguments'))['location']
+    if assistant_message.get("function_call").get("name") == "get_current_weather":
+        location = json.loads(assistant_message.get("function_call").get("arguments") )["location"]
         results = get_current_weather(location)
     else:
-        results = f"Error: function {assistant_message['function_call']['name']} dosent exist."
+        results = f"Error: function {assistant_message['function_call']['name']} does not exist"
+
     return results
 
-def get_natural_response(content,message):
+
+def get_natural_response(content, message):
     convert_prompt = conv_prompt.replace("<query>", message).replace("<api_result>", content)
     messages.append({"role": "user", "content": convert_prompt})
     convert_prompt_response = chat_completion_request(messages=messages)
@@ -34,33 +34,27 @@ def get_natural_response(content,message):
 
 @cl.on_message
 async def main(message: str):
-    # Your custom logic goes here...
-    messages.append({'role':'user',"comtent":message})
+    messages.append({"role": "user", "content": message})
+    print(f"\n>>>> Message to openai: \n{messages}\n")
+
+    chat_response = chat_completion_request(messages=messages, functions=functions)
+    print(f"\n>>>> complete_chat_response: \n{chat_response.json()}\n")
     
-    # Calling the chatgpt api response by passing the message and function
-    chat_response = chat_completion_request(messages=message)
-    print(f"\nChat_response: \n{chat_response}")
+    assistant_message = chat_response.json()["choices"][0]["message"]
+    print(f"\n>>>> assistant message: \n{assistant_message}\n")
 
-
-    # Extracting the message
-    assistant_message = chat_response.json()['choices'][0]['message']
-    print(f"\nAssistant Message: \n{assistant_message}") 
-
-    if assistant_message.get('function_call'):
-        result=execute_function_call(assistant_message=assistant_message)
-        print(f"\nResult obtained fron executiion of functional call: \n{result}")
-        content = json.dumps(result)
-        content = get_natural_response(content=content,message=message)
-
+    if assistant_message.get("function_call") == 'get_current_weather':
+        results = execute_function_call(assistant_message)
+        print(f"\n>>>> results obtained from executing function call: \n{results}\n")
+        content = json.dumps(results)
+        content = get_natural_response(content, message)
     else:
-        message.append(assistant_message)
-        content = assistant_message['content']
-        print(f"\nresult obtained: \n{content}")
+        messages.append(assistant_message)
+        content = assistant_message["content"]
+        print(f"\n>>>> results obtained: \n{content}\n")
+    
+    print(f"\n>>>> Chat response: {content}\n")
 
-    print(f"\n Chat Response: {content}")
-
-
-    # Send a response back to the user
     await cl.Message(
         content=content
     ).send()

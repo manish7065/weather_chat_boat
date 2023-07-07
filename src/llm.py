@@ -31,8 +31,6 @@ def chat_completion_request(messages, functions=None, function_call=None, model=
         print(f"\n>>> Exception: {e}")
         raise e
 
-
-
 functions = [
     {
         "name":"get_current_weather", # Name of the function

@@ -4,14 +4,9 @@
 public = true
 
 # The project ID (found on https://cloud.chainlit.io).
-# The project ID is required when public is set to false or when using the cloud database.
+# If provided, all the message data will be stored in the cloud.
+# The project ID is required when public is set to false.
 #id = ""
-
-# Uncomment if you want to persist the chats.
-# local will create a database in your .chainlit directory (requires node.js installed).
-# cloud will use the Chainlit cloud database.
-# custom will load use your custom client.
-# database = "local"
 
 # Whether to enable telemetry (default: true). No personal data is collected.
 enable_telemetry = true
@@ -21,7 +16,7 @@ user_env = []
 
 [UI]
 # Name of the app and chatbot.
-name = "Chatbot"
+name = "WeatherBot"
 
 # Description of the app and chatbot. This is used for HTML tags.
 # description = ""
@@ -33,7 +28,5 @@ default_expand_messages = false
 hide_cot = false
 
 # Link to your github repo. This will add a github button in the UI's header.
-# github = ""
-
 [meta]
-generated_by = "0.5.0"
+generated_by = "0.4.0"
